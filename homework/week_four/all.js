@@ -67,6 +67,10 @@ const bmiData = {
 
 let bmiHistoryData = [];
 
+function addData(bmi, status, healthIndex) {
+    bmiHistoryData.push({ bmi, status, healthIndex });
+}
+
 function addRecord(bmi, status, healthIndex) {
     let record = {};
     record.bmi = bmi;
@@ -113,7 +117,12 @@ function printBmi(height, weight) {
 function showHistoryData() {
     console.log(`您總共計算 ${bmiHistoryData.length} 次 BMI 紀錄，最後一次 BMI 指數為 ${bmiHistoryData[bmiHistoryData.length - 1].bmi}，體重${bmiHistoryData[bmiHistoryData.length - 1].status}！健康指數為${bmiHistoryData[bmiHistoryData.length - 1].healthIndex}！`);
 }
-
+function showHistoryData() {
+    const totalNum = bmiHistoryData.length;
+    const lastIndex = totalNum - 1;
+    const lastRecord = bmiHistoryData[lastIndex]
+    console.log(`您總共計算 ${totalNum} 次 BMI 紀錄，最後一次 BMI 指數為 ${lastRecord.bmi}，體重 ${lastRecord.status}！健康指數為 ${lastRecord.color}！`);
+}
 // printBmi(178, 20)
 // printBmi(178, 70)
 // printBmi(178, 85)
