@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>累加時間表單</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container py-5">
+        <h1 class="mb-4">累加時間表單</h1>
+        <form id="timeForm">
+            <div class="mb-3">
+                <label for="hoursInput" class="form-label">小時數</label>
+                <input type="number" class="form-control" id="hoursInput" placeholder="輸入小時數" min="0">
+            </div>
+
+            <div class="mb-3">
+                <label for="minutesInput" class="form-label">分鐘數</label>
+                <input type="number" class="form-control" id="minutesInput" placeholder="輸入分鐘數" min="0">
+            </div>
+            <div class="mb-3">
+                <label for="secondsInput" class="form-label">秒數</label>
+                <input type="number" class="form-control" id="secondsInput" placeholder="輸入秒數" min="0" max="59">
+            </div>
+            <button type="button" class="btn btn-primary" id="addTimeBtn">累加時間</button>
+            <button type="button" class="btn btn-danger" id="resetTimeBtn">重新計算時間</button>
+
+        </form>
+
+        <div class="mt-4">
+            <h3>目前累加的時間：</h3>
+            <p id="totalTime" class="fs-5">0 分 0 秒</p>
+        </div>
+    </div>
+
+    <script>
+        let totalHours = 0; // 總小時數
+        let totalMinutes = 0; // 總分鐘數
+        let totalSeconds = 0; // 總秒數
+
+        document.getElementById('addTimeBtn').addEventListener('click', function () {
+            const hoursInput = document.getElementById('hoursInput').value;
+            const minutesInput = document.getElementById('minutesInput').value;
+            const secondsInput = document.getElementById('secondsInput').value;
+
+            let newHours = parseInt(hoursInput) || 0;
+            let newMinutes = parseInt(minutesInput) || 0;
+            let newSeconds = parseInt(secondsInput) || 0;
+
+            // 更新總時間
+            totalSeconds += newSeconds;
+            totalMinutes += newMinutes + Math.floor(totalSeconds / 60);
+            totalSeconds = totalSeconds % 60;
+            totalHours += newHours + Math.floor(totalMinutes / 60);
+            totalMinutes = totalMinutes % 60;
+
+            // 顯示累加後的總時間（小時:分鐘:秒數）
+            document.getElementById('totalTime').textContent =
+                `${totalHours} 小時 ${totalMinutes} 分 ${totalSeconds} 秒`;
+
+            // 清空輸入框
+            document.getElementById('hoursInput').value = '';
+            document.getElementById('minutesInput').value = '';
+            document.getElementById('secondsInput').value = '';
+        });
+
+        document.getElementById('resetTimeBtn').addEventListener('click', function () {
+            // 重置總時間
+            totalHours = 0;
+            totalMinutes = 0;
+            totalSeconds = 0;
+
+            // 更新顯示的時間
+            document.getElementById('totalTime').textContent = '0 小時 0 分 0 秒';
+        });
+
+    </script>
+</body>
+
+</html>
+<!-- 物件陣列，第三周前 
+    1 小時 27 分 55 秒 OK -->
+
+<!-- 函式 function 
+    1 小時 14 分 19 秒 -->
+
+<!-- Codewar 程式解題邏輯培養 
+    0 小時 58 分 15 秒 -->
+
+<!-- DOM - 選取網頁元素 
+    1 小時 1 分 31 秒 -->
+
+<!-- Event 事件 - 讓您的網頁具有互動效果 
+    0 小時 44 分 39 秒 -->
+
+<!-- 陣列 forEach 資料處理方法 
+    0 小時 55 分 28 秒 -->
+
+<!-- AJAX - 網路請求 
+    0 小時 51 分 19 秒 -->
+
+<!-- AJAX - axios 套件教學 
+    0 小時 34 分 16 秒 -->
+
+<!-- AJAX POST API 講解 
+    0 小時 50 分 2 秒 -->
+
+<!-- todolist 待辦事項 
+    1 小時 2 分 26 秒 -->
