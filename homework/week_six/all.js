@@ -1,36 +1,22 @@
-// 初始的資料
-let data = [
-    {
-        "id": 0,
-        "name": "肥宅心碎賞櫻3日",
-        "imgUrl": "https://images.unsplash.com/photo-1522383225653-ed111181a951?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1655&q=80",
-        "area": "台中",
-        "description": "賞櫻花最佳去處。肥宅不得不去的超讚景點！",
-        "group": 87,
-        "price": 1400,
-        "rate": 10
-    },
-    {
-        "id": 1,
-        "name": "貓空纜車雙程票",
-        "imgUrl": "https://images.unsplash.com/photo-1501393152198-34b240415948?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1650&q=80",
-        "area": "台北",
-        "description": "乘坐以透明強化玻璃為地板的「貓纜之眼」水晶車廂，享受騰雲駕霧遨遊天際之感",
-        "group": 99,
-        "price": 240,
-        "rate": 2
-    },
-    {
-        "id": 2,
-        "name": "台中谷關溫泉會1日",
-        "imgUrl": "https://images.unsplash.com/photo-1535530992830-e25d07cfa780?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1650&q=80",
-        "area": "台中",
-        "description": "全館客房均提供谷關無色無味之優質碳酸原湯，並取用八仙山之山冷泉供蒞臨貴賓沐浴及飲水使用。",
-        "group": 20,
-        "price": 1765,
-        "rate": 7
-    }
-];
+let data = [];
+
+// 透過axios抓取資料
+axios.get('https://raw.githubusercontent.com/hexschool/js-training/main/travelApi.json')
+    .then(function (response) {
+        data = response.data.data; //
+        renderData();
+    })
+    .catch(function (error) {
+        console.error("抓取資料失敗：", error);
+    });
+
+// 渲染資料
+function renderData() {
+    init();
+    displayData(); // 顯示全部資料
+    bindSearchEvent(); // 綁定搜尋事件
+    init_alert();
+}
 
 // 表單的各input區塊
 const ticketName = document.querySelector('#ticketName');// 套票名稱
@@ -261,36 +247,34 @@ addTicket_btn.addEventListener("click", function () {
 });
 
 // 變更搜尋結果的區塊
-searchArea.addEventListener("change", function (e) {
-    let count1 = 0; // 計算共幾個結果
-    data.forEach(function (item) {
-        if (e.target.value == '全部地區') {
-            displayData();
-            count1 = data.length;
-        }
-        else if (e.target.value == item.area) { // 一次加一組進去
-            displayConditionData(item);
-            count1++;
-        }
-    });
+function bindSearchEvent() {
+    searchArea.addEventListener("change", function (e) {
+        let count1 = 0; // 計算共幾個結果
+        data.forEach(function (item) {
+            if (e.target.value == '全部地區') {
+                displayData();
+                count1 = data.length;
+            }
+            else if (e.target.value == item.area) { // 一次加一組進去
+                displayConditionData(item);
+                count1++;
+            }
+        });
 
-    if (count1 == 0) {
-        listArea.innerHTML = '';
-        searchResult.textContent = `找不到符合條件的資料`;
-        cantFind_area.setAttribute("style", "display:block");
-    }
-    else if (count1 == data.length) {
-        cantFind_area.setAttribute("style", "display:none");
-        //顯示全部透過函數已完成
-    }
-    else {
-        listArea.innerHTML = htmlContent;
-        cantFind_area.setAttribute("style", "display:none");
-        searchResult.textContent = `本次搜尋共 ${count1} 筆資料`;
-    }
-    htmlContent = ''; // 結束後清空li，不然下次會一直累加
-})
-
-// 網頁初始執行
-init();
-init_alert();
+        if (count1 == 0) {
+            listArea.innerHTML = '';
+            searchResult.textContent = `找不到符合條件的資料`;
+            cantFind_area.setAttribute("style", "display:block");
+        }
+        else if (count1 == data.length) {
+            cantFind_area.setAttribute("style", "display:none");
+            //顯示全部透過函數已完成
+        }
+        else {
+            listArea.innerHTML = htmlContent;
+            cantFind_area.setAttribute("style", "display:none");
+            searchResult.textContent = `本次搜尋共 ${count1} 筆資料`;
+        }
+        htmlContent = ''; // 結束後清空li，不然下次會一直累加
+    })
+}
