@@ -1,0 +1,53 @@
+ 以下兩個為GET 
+產品相關(客戶) - 取得產品列表
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/products
+
+購物車相關(客戶) - 取得購物車列表
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/carts
+
+ 以下一個為POST 
+購物車相關(客戶) - 加入購物車
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/carts
+傳送的Data格式
+{
+  "data": {
+    "productId": "產品 ID",
+    "quantity": 愈增加的數量
+  }
+}
+
+
+ 以下一個為PATCH 
+購物車相關(客戶) - 編輯購物車產品數量
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/carts
+ 傳送的data格式
+{
+  "data": {
+    "id": "購物車ID",
+    "quantity": 欲修改的數量
+  }
+}
+
+ 以下兩個為DELETE 
+購物車相關(客戶) - 清除購物車內全部產品
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/carts
+
+購物車相關(客戶) - 刪除購物車內特定產品；刪除購物車特定產品後將會回傳新的購物車列表。；請注意，請不要傳送產品 ID (productId) 而是購物車的 ID。
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/carts/${購物車ID}
+
+以下一個為POST
+訂單相關(客戶) - 送出購買訂單
+https://livejs-api.hexschool.io/api/livejs/v1/customer/toung/orders
+傳送的data格式
+{
+  "data": {
+    "user": {
+      "name": "六角學院",
+      "tel": "07-5313506",
+      "email": "hexschool@hexschool.com",
+      "address": "高雄市六角學院路",
+      "payment": "Apple Pay"
+    }
+  }
+}
+
