@@ -42,6 +42,8 @@ const tradeWay = document.querySelector("#tradeWay");
 const orderInfo_btn = document.querySelector('.orderInfo-btn');
 // 信箱的提示訊息
 const emailErrorMessage = document.querySelector(`[data-message="Email"]`);
+// 全部的表單提示文字
+const AllerrorMessage = document.querySelectorAll(`[data-message]`);
 
 // ----------axios區塊----------
 // axios取得產品列表
@@ -161,7 +163,7 @@ function sendOrder() {
                 title: "送出訂單成功",
                 showConfirmButton: true
             });
-            emailErrorMessage.textContent = '必填';
+            init_errorMessage();
             orderInfo_form.reset();
             cartsProductsData = { status: true, carts: Array(0), total: 0, finalTotal: 0 };
             renderCartsProductsData(cartsProductsData);
@@ -194,6 +196,7 @@ function renderCartsProductsData(cartsProductsData) {
     if (cartsProductsData.carts.length === 0) {
         shoppingCart.innerHTML = '購物車尚未有商品，歡迎選購';
         shoppingPrice.textContent = `NT$0`;
+        shoppingFooterCart.setAttribute("style", "display:none");
         return;
         // 將刪除所有品項按鈕設為不能點選  -> 再測試 也可用取消表尾的方式 - >要把表尾找出來
         // shoppingFooterCart.innerHTML = '';
@@ -202,6 +205,7 @@ function renderCartsProductsData(cartsProductsData) {
     let finalTotalPrice = cartsProductsData.finalTotal; // 抓取購物車總金額
     cartsProductsData.carts.forEach(function (item) {
         let totalPrice = item.product.price * item.quantity;
+
         CartsProductsStr += `<tr>
                             <td>
                                 <div class="cardItem-title">
@@ -217,7 +221,9 @@ function renderCartsProductsData(cartsProductsData) {
                             </td>
                         </tr>`;
 
+
     });
+    shoppingFooterCart.setAttribute("style", "display:table-footer-group");
     shoppingCart.innerHTML = CartsProductsStr;
     shoppingPrice.textContent = `NT$${finalTotalPrice}`;
 };
@@ -331,6 +337,10 @@ function chkFormField() {
         },
     };
     const error = validate(orderInfo_form, constraints); // validate(欲檢查的表單, 驗證規則)
+
+    AllerrorMessage.forEach(function (item) {
+        item.textContent = "";
+    });
     if (error) {
         const errorArr = Object.keys(error);
         errorArr.forEach(function (item) {
@@ -340,6 +350,13 @@ function chkFormField() {
     };
     return error;
 };
+
+// 初始化表單的提示文字
+function init_errorMessage() {
+    AllerrorMessage.forEach(function (item) {
+        item.textContent = '必填';
+    });
+}
 
 // !初始化會需要用到的函式!
 function init() {
