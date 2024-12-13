@@ -142,6 +142,44 @@ function discardOneProduct(cartId) {
         });
 };
 
+// axios 編輯購物車的單一品項
+function updateOneProduct(cartId,quantity,status) {
+    let swalText = '';
+    // api 所需格式
+    const updateOneProduct = {
+        "data": {
+          "id": cartId,
+          "quantity": quantity
+        }
+    };
+    if(status === 'add'){
+        swalText = '新增數量成功';
+    }
+    else if(status === 'remove'){
+        swalText = '減少數量成功';
+    }
+    axios.patch(`${fullPath}carts`, updateOneProduct)
+        .then(function (response) {
+            cartsProductsData = response.data;
+            renderCartsProductsData(cartsProductsData);
+            Swal.fire({
+                icon: "success",
+                title: swalText,
+                showConfirmButton: true
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+            Swal.fire({
+                icon: "error",
+                title: swalText,
+                showConfirmButton: true
+            });
+            console.error("編輯購物車數量失敗", error);
+        });
+};
+
+
 // axios送出購買訂單
 function sendOrder() {
     // API DATA
@@ -198,15 +236,13 @@ function renderCartsProductsData(cartsProductsData) {
         shoppingPrice.textContent = `NT$0`;
         shoppingFooterCart.setAttribute("style", "display:none");
         return;
-        // 將刪除所有品項按鈕設為不能點選  -> 再測試 也可用取消表尾的方式 - >要把表尾找出來
-        // shoppingFooterCart.innerHTML = '';
     };
     let CartsProductsStr = ''; // 用來存放購物車產品的字串
     let finalTotalPrice = cartsProductsData.finalTotal; // 抓取購物車總金額
     cartsProductsData.carts.forEach(function (item) {
         let totalPrice = item.product.price * item.quantity;
 
-        CartsProductsStr += `<tr>
+        CartsProductsStr += `<tr data-id=${item.id}>
                             <td>
                                 <div class="cardItem-title">
                                     <img src="${item.product.images}" alt="">
@@ -214,10 +250,14 @@ function renderCartsProductsData(cartsProductsData) {
                                 </div>
                             </td>
                             <td>NT$${item.product.price}</td>
-                            <td>${item.quantity}</td>
+                            <td> 
+                                <a href="#" class="material-icons addNumBtn" > add </a>
+                                ${item.quantity}
+                                <a href="#" class="material-icons removeNumBtn"> remove </a>
+                            </td>
                             <td>NT$${totalPrice}</td>
                             <td class="discardBtn">
-                                <a href="#" class="material-icons" data-id=${item.id}> clear </a>
+                                <a href="#" class="material-icons removeProductBtn"> clear </a>
                             </td>
                         </tr>`;
 
@@ -239,14 +279,33 @@ function getFilterProductSelect() {
 //  新增產品至購物車 - 對產品區塊作監聽，並取得使用者選擇的值
 function getAddProductSelect() {
     productWrap.addEventListener('click', function (e) {
-        e.preventDefault();
+        e.preventDefault();        
         let productId = e.target.dataset.id;
         // 有點到加入購物車按鈕再呼叫函式加入資料
         if (!productId) {
             return;
         }
         else {
-            addProducts(productId);
+            let isHaveProduct = false;  // 紀錄是否已加入購物車
+            cartsProductsData.carts.some(function (item){        // 透過目前的購物車清單，確認是否有資料
+                if(item.product.id === productId){               // 找到相對應的id
+                    isHaveProduct = true;                        // 有找到購物車的此產品資料，設為true
+                    return true;                                 // 並用return true 代表我已找到資料，並退出迴圈
+                }
+                return false;                                    // 未比對，則繼續比對，直到回傳true，或結束迴圈比對
+                
+            });     
+            // 判斷是否有加入
+            if(isHaveProduct){
+                Swal.fire({
+                    icon: "info",
+                    title: "此產品已在購物車內，請透過購物車修改數量",
+                    showConfirmButton: true
+                });
+            }
+            else{
+                addProducts(productId);  
+            }
         }
     });
 }
@@ -259,17 +318,53 @@ function DiscardAllProductSelect() {
     });
 }
 
-//  刪除購物車的某產品 - 對每個產品區塊作監聽，並取得使用者選擇的值
-function DiscardOneProductSelect() {
+//  監聽購物車區塊的，並透過tr的data-id來取得購物車id，跟按鈕的class做判斷增加、減少、刪除
+function CardProductSelect() {    
     shoppingCart.addEventListener('click', function (e) {
-        e.preventDefault();
-        let cartId = e.target.dataset.id;
-        // 有點到加入購物車按鈕再呼叫函式加入資料
-        if (!cartId) {
-            return;
+        e.preventDefault(); // 清除預設動作
+        const tr = e.target.closest('tr'); // 找到最近的tr    
+        let CartId = tr.dataset.id;        // 找到購物車id
+        if(e.target.classList.contains('removeProductBtn')){ // 點選刪除按鈕
+            discardOneProduct(CartId);
+        } 
+        else if (e.target.classList.contains('addNumBtn')) { // 點選增加數量按鈕            
+            let quantity = 0;                                // 初始化產品數量
+            cartsProductsData.carts.forEach(function (item){ // 尋找目前的購物車清單
+                if(item.id === CartId){                      // 找到相對應的id
+                    quantity = item.quantity + 1;            // 增加產品數量
+                    updateOneProduct(CartId,quantity,'add'); // 更新購物車
+                    return;
+                };                
+            });            
+        }
+        else if (e.target.classList.contains('removeNumBtn')) { // 點選減少數量按鈕
+            let quantity = 0;
+            cartsProductsData.carts.forEach(function (item){
+                if(item.id === CartId){
+                    quantity = item.quantity - 1;
+                    if(quantity === 0){
+                        Swal.fire({
+                            title: "請問是刪除此產品嗎？",                            
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "是，我要刪除",
+                            cancelButtonText: "否"
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                                discardOneProduct(CartId);
+                            }
+                          });
+                          return;
+                    }
+                    updateOneProduct(CartId,quantity,'remove');
+                    return;
+                };                
+            }); 
         }
         else {
-            discardOneProduct(cartId);
+            return;
         }
     });
 }
@@ -360,13 +455,13 @@ function init_errorMessage() {
 
 // !初始化會需要用到的函式!
 function init() {
-    getProducts();      // axios取得產品列表
-    getCarts();         // axios取得購物車列表
-    getFilterProductSelect(); //對篩選按鈕做監聽，並取得使用者選擇的值
-    getAddProductSelect(); //對每個產品區塊作監聽，並取得使用者選擇的值
+    getProducts();             // axios取得產品列表
+    getCarts();                // axios取得購物車列表
+    getFilterProductSelect();  //對篩選按鈕做監聽，並取得使用者選擇的值
+    getAddProductSelect();     //對每個產品區塊作監聽，並取得使用者選擇的值
     DiscardAllProductSelect(); // 對刪除按鈕做監聽
-    DiscardOneProductSelect();
-    SendOrderBtnSelect();
+    CardProductSelect();       // 對購物車區塊作監聽
+    SendOrderBtnSelect();      // 對送出預訂按鈕做監聽
 }
 
 // 網頁初始化
